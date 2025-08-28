@@ -165,8 +165,7 @@ def planes_of_expression(f_name, l_name, m_name=""):
         # letter_count += 1
     for k, v in planes_dict.items():
         planes_dict[k] = sum_digits(v)
-    print(f"Your Physical Plane of Expression is {planes_dict['Physical']}.\n"
-          f"Your Mental Plane of Expression is {planes_dict['Mental']}.\n"
-          f"Your Emotional Plane of Expression is {planes_dict['Emotional']}.\n"
-          f"Your Intuitive Plane of Expression is {planes_dict['Intuitive']}.\n")
+    for x in ['Physical', 'Mental', 'Emotional', 'Intuitive']:
+      print(f"Your {x} Plane of Expression is {planes_dict[x]}.\n")
+
 
