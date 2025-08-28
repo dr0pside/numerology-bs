@@ -11,8 +11,38 @@ consonants = {"B": 2, "C": 3, "D": 4, "F": 6, "G": 7, "H": 8,
               "J": 1, "K": 2, "L": 3, "M": 4, "N": 5, "P": 7, "Q": 8, "R": 9,
               "S": 1, "T": 2, "V": 4, "W": 5, "X": 6, "Y": 7, "Z": 8}
 
+planes_matrix = {
+    "E": ("Physical", "Creative"),
+    "W": ("Physical", "Vacillating"),
+    "D": ("Physical", "Grounded"),
+    "M": ("Physical", "Grounded"),
+    "A": ("Mental", "Creative"),
+    "H": ("Mental", "Vacillating"),
+    "J": ("Mental", "Vacillating"),
+    "N": ("Mental", "Vacillating"),
+    "P": ("Mental", "Vacillating"),
+    "G": ("Mental", "Grounded"),
+    "L": ("Mental", "Grounded"),
+    "I": ("Emotional", "Creative"),
+    "O": ("Emotional", "Creative"),
+    "R": ("Emotional", "Creative"),
+    "Z": ("Emotional", "Creative"),
+    "B": ("Emotional", "Vacillating"),
+    "S": ("Emotional", "Vacillating"),
+    "T": ("Emotional", "Vacillating"),
+    "X": ("Emotional", "Vacillating"),
+    "K": ("Intuitive", "Creative"),
+    "F": ("Intuitive", "Vacillating"),
+    "Q": ("Intuitive", "Vacillating"),
+    "U": ("Intuitive", "Vacillating"),
+    "Y": ("Intuitive", "Vacillating"),
+    "C": ("Intuitive", "Grounded"),
+    "V": ("Intuitive", "Grounded")
+}
+
 karma = []
 added_karma = []
+karma_count = 0
 
 def sum_digits(n, mode=""):
     s = 0
@@ -36,11 +66,37 @@ def sum_digits(n, mode=""):
 
     return s
 
+def pure_sum_letters(f_name: str, l_name: str, m_name=""):
+    name_dict = full
+    
+    for name in [f_name, l_name, m_name]:
+        total = 0
+        for l in name:
+            l = l.upper()
+            if l in name_dict:
+                total += name_dict[l]
+    return total
+
 def challenge_math(n1, n2):
     res = sum_digits(n1, mode="ignore") - sum_digits(n2, mode="ignore")
     if res < 0:
         res *= -1
     return res
+
+def bridge(n1, n2, mode=""):
+    x = n1 - n2
+    if x < 0:
+        x *= -1
+    if mode == "sp":
+        print(f"Your Heart's Desire - Personality bridge is {x}")
+    if mode == "le":
+        print(f"Your Life's Path - Expression bridge is {x}")
+
+def sum_digits_and_print(n, mode=""):
+    if mode == "maturity":
+        print(f"Your Maturity number is {sum_digits(n, mode='ignore')}")
+    if mode == "rational":
+        print(f"Your Rational Thought number is {sum_digits(n, mode='ignore')}")
 
 def karma_print():
 
@@ -80,8 +136,36 @@ def passion_karma(f_name: str, l_name: str, d, m_name=""):
             count += 1
             if count != len(karmic_list):
                 karma_str += ", "
+        karma_count = count
         return karma_str
 
-    print(f"Your Passion number is {passion_number}, with {count_dict[passion_number]} occurrences.")
+    print(f"Your Hidden Passion number is {passion_number}, with {count_dict[passion_number]} occurrences.")
     print(f"Your Karmic Lesson numbers are {karmic_print()}.")
     return
+
+def cornerstone(f_name):
+    print(f"Your Cornerstone is {f_name[0].upper()}")
+
+def subconscious():
+    print(f"Your Subconscious Self number is {9 - karma_count}")
+
+def planes_of_expression(f_name, l_name, m_name=""):
+    
+    planes_dict = {"Physical": 0, "Mental": 0, "Emotional": 0, "Intuitive": 0,
+                   "Creative": 0, "Vacillating": 0, "Grounded": 0}
+    planes_count = planes_dict.copy()
+    full_name = "".join([f_name, l_name, m_name])
+    letter_count = 0
+    for x in full_name.upper():
+        plane_name, mode_name = planes_matrix[x]
+        planes_dict[plane_name] += full[x]
+        planes_dict[mode_name] += full[x]
+        planes_count[plane_name] += 1
+        planes_count[mode_name] += 1
+        letter_count += 1
+    for k, v in planes_dict.items():
+        planes_dict[k] = sum_digits(v)
+    print(f"Your Physical Plane of Expression is {planes_dict['Physical']}.\n"
+          f"Your Mental Plane of Expression is {planes_dict['Mental']}.\n"
+          f"Your Emotional Plane of Expression is {planes_dict['Emotional']}.\n"
+          f"Your Intuitive Plane of Expression is {planes_dict['Intuitive']}.\n")
