@@ -160,12 +160,13 @@ def planes_of_expression(f_name, l_name, m_name=""):
         plane_name, mode_name = planes_matrix[x]
         planes_dict[plane_name] += full[x]
         planes_dict[mode_name] += full[x]
-        planes_count[plane_name] += 1
-        planes_count[mode_name] += 1
-        letter_count += 1
+        # planes_count[plane_name] += 1   Thought I needed these, turns out I don't
+        # planes_count[mode_name] += 1
+        # letter_count += 1
     for k, v in planes_dict.items():
         planes_dict[k] = sum_digits(v)
     print(f"Your Physical Plane of Expression is {planes_dict['Physical']}.\n"
           f"Your Mental Plane of Expression is {planes_dict['Mental']}.\n"
           f"Your Emotional Plane of Expression is {planes_dict['Emotional']}.\n"
           f"Your Intuitive Plane of Expression is {planes_dict['Intuitive']}.\n")
+
