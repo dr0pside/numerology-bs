@@ -5,6 +5,8 @@ from calendar import isleap
 #VAR INIT:
 karma = h.karma
 added_karma = h.added_karma
+numbers_repo = {}
+
 
 #MAIN FUNCS:
 
@@ -19,6 +21,7 @@ def birthday(d, m, y):
             res += (h.sum_digits(x),)
 
     life_path = sum(res)
+    numbers_repo.update({"life_path" : life_path })
 
     if life_path not in h.MASTER_NUMBERS and life_path >= 10:
         life_path = h.sum_digits(life_path)
@@ -57,13 +60,15 @@ def birthday(d, m, y):
     else:
         print(
             f"\nYour Life Path is {life_path}, with the karmic debt(s) {h.karma_print()}.\n{period_print}\n{pinnacle_print}\n{challenge_print}")
-
+    
+    print(f"Your Life Path - Birthday bridge is {h.bridge(life_path, d)}")
     print(f"Your Sun number is {sun_number}.")
 
-def name_analysis(f_name: str, l_name: str, m_name="", mode=""):
+def name_analysis(f_name: str, l_name: str, m_name="", n_name="", mode="", minor=False):
     name_dict = h.full
 
-    func_str = "Expression"
+    if mode == "expression":
+        func_str = "Expression"
 
     if mode == "soul":
         name_dict = h.vowels
@@ -79,39 +84,59 @@ def name_analysis(f_name: str, l_name: str, m_name="", mode=""):
 
     if mode == "balance":
         func_str = "Balance"
-
+    
+    name_str = "".join([f_name, l_name, m_name])
+    
+    if minor == True:
+        name_str = n_name
+        func_str = "Minor " + func_str
+    
     name_numbers = []
-    for name in [f_name, l_name, m_name]:
-        total = 0
-        for l in name:
-            l = l.upper()
-            if l in name_dict:
-                total += name_dict[l]
-            if mode == "balance":
-                break  # we only want the name initials for the balance number
-        name_numbers.append(h.sum_digits(total))
+    total = 0
+    for l in name_str:
+        l = l.upper()
+        if l in name_dict:
+            total += name_dict[l]
+        if mode == "balance":
+            break  # we only want the name initials for the balance number
+    name_numbers.append(h.sum_digits(total))
 
-    expr_number = sum(name_numbers)
-
-    if mode == "":
-        if len(h.karma) == 0:
-            print(f"Your {func_str} number is {h.sum_digits(expr_number)}, with no karmic debt numbers.")
-        else:
-            print(f"Your {func_str} number is {h.sum_digits(expr_number)}, with the karmic debt(s) {h.karma_print()}.")
+    expr_number = h.sum_digits(sum(name_numbers))
+    
+    if minor == False:
+        numbers_repo.update({mode : int(expr_number)})
     else:
-        print(f"Your {func_str} number is {h.sum_digits(expr_number)}.")
+        numbers_repo.update({"minor" + mode : int(expr_number)})
+    
+
+    if mode == "expression":
+        if len(karma) == 0:
+            print(f"Your {func_str} number is {expr_number}, with no karmic debt numbers.")
+        else:
+            print(f"Your {func_str} number is {expr_number}, with the karmic debt(s) {h.karma_print()}.")
+    else:
+        print(f"Your {func_str} number is {expr_number}.")
 
 #RUNNER:
 
-def number_generator(f_name, l_name, m_name, d, m, y,):
+def number_generator(f_name, l_name, m_name, n_name, d, m, y,):
 
     h.karma.clear()
     h.added_karma.clear()
     birthday(d, m, y)
-    name_analysis(f_name, l_name, m_name)
-    for x in ["soul", "personality", "passion", "balance"]:
+    for x in ["expression","soul", "personality"]:
         name_analysis(f_name, l_name, m_name, mode=x)
-
+        name_analysis(f_name, l_name, m_name, n_name, mode=x, minor=True)
+    h.bridge(numbers_repo["soul"], numbers_repo["personality"], mode="sp")
+    h.bridge(numbers_repo["life_path"], numbers_repo["expression"], mode="le")
+    h.sum_digits_and_print(numbers_repo["life_path"] + numbers_repo["expression"], mode="maturity")
+    h.sum_digits_and_print(h.pure_sum_letters(f_name, l_name, m_name) + d, mode="rational")
+    for x in ["passion", "balance"]:
+        name_analysis(f_name, l_name, m_name, mode=x)
+    h.cornerstone(f_name)
+    h.subconscious()
+    h.planes_of_expression(f_name, l_name, m_name)
+    
 
 #INPUT VALIDATION:
 
@@ -181,6 +206,10 @@ def interface():
     str_validation(m_name)
     l_name = input("Enter your last name:")
     str_validation(l_name)
+    n_name = input("Enter your nickname, if you have one:")
+    str_validation(n_name)
+    if n_name == "":
+        n_name = f_name
     
     d = input("Enter your day of birth:")
     int_validation(d, "day")
@@ -194,17 +223,17 @@ def interface():
     int_validation(y, "year", stored_d, stored_m)
     stored_y = int(y)
     
-    number_generator(f_name, l_name, m_name, stored_d, stored_m, stored_y)
+    number_generator(f_name, l_name, m_name, n_name, stored_d, stored_m, stored_y)
     
     x = input("Want to go again? Type 'YES' if so:   ")
     if x.upper() == "YES":
         interface()
     else:
+        input("\nPress any button to exit...")
         quit()
 
 if __name__ == "__main__":
     interface()
-    input("\nPress any button to exit...")
 
 
 
