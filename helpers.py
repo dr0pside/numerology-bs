@@ -1,5 +1,5 @@
-master_numbers = [11, 22, 33]
-karmic_numbers = [13, 14, 16, 19]
+MASTER_NUMBERS = [11, 22, 33]
+KARMIC_NUMBERS = [13, 14, 16, 19]
 
 full = {"A": 1, "B": 2, "C": 3, "D": 4, "E": 5, "F": 6, "G": 7, "H": 8, "I": 9,
              "J": 1, "K": 2, "L": 3, "M": 4, "N": 5, "O": 6, "P": 7, "Q": 8, "R": 9,
@@ -18,9 +18,9 @@ def sum_digits(n, mode=""):
     s = 0
 
     if mode != "ignore":
-        if n in master_numbers:
+        if n in MASTER_NUMBERS:
             return n
-        if n in karmic_numbers and n not in added_karma:
+        if n in KARMIC_NUMBERS and n not in added_karma:
             karma.append(f"{n}/{sum(int(d) for d in str(n))}") #append karmic number to list as a nicely formatted string
             added_karma.append(n)
     while n:
@@ -28,7 +28,7 @@ def sum_digits(n, mode=""):
         n //= 10
 
     if mode != "ignore":
-        if s >= 10 and s not in master_numbers:
+        if s >= 10 and s not in MASTER_NUMBERS:
             return sum_digits(s) #recursive call in case s still has multiple digits
     else:
         if s >= 10:
