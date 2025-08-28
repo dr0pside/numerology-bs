@@ -43,7 +43,7 @@ def challenge_math(n1, n2):
     return res
 
 def karma_print():
-    global karma
+
     karma_str = ""
     count = 0
     for entry in karma:
