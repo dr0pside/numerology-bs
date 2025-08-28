@@ -1,11 +1,15 @@
 import helpers as h
+from datetime import datetime
+from calendar import isleap
 
+#VAR INIT:
 karma = h.karma
+added_karma = h.added_karma
+
+#MAIN FUNCS:
 
 def birthday(d, m, y):
     res = ()
-
-    global karma
 
     for x in [d, m, y]:
 
@@ -56,10 +60,6 @@ def birthday(d, m, y):
 
     print(f"Your Sun number is {sun_number}.")
 
-    h.karma.clear()
-    h.added_karma.clear()
-
-
 def name_analysis(f_name: str, l_name: str, m_name="", mode=""):
     name_dict = h.full
 
@@ -101,52 +101,107 @@ def name_analysis(f_name: str, l_name: str, m_name="", mode=""):
     else:
         print(f"Your {func_str} number is {h.sum_digits(expr_number)}.")
 
-    h.karma.clear()
-    h.added_karma.clear()
-
 #RUNNER:
 
-def number_generator(f_name, l_name, d, m, y):
+def number_generator(f_name, l_name, m_name, d, m, y,):
 
+    h.karma.clear()
+    h.added_karma.clear()
     birthday(d, m, y)
-    name_analysis(f_name, l_name)
+    name_analysis(f_name, l_name, m_name)
     for x in ["soul", "personality", "passion", "balance"]:
-        name_analysis(f_name, l_name, mode=x)
+        name_analysis(f_name, l_name, m_name, mode=x)
 
 
-#INPUT HANDLING:
+#INPUT VALIDATION:
 
 def str_validation(string):
     def has_numbers(word):
-        return any(char.isdigit() for char in word)
+        checks = []
+        for x in word:
+            checks.append(x.isalpha())
+        if False in checks:
+            return True
     if has_numbers(string):
         print("Letters only allowed - try again.")
         interface()
 
-def int_validation(integer):
+def int_validation(integer, mode="", d=0, m=0):
+    
+    current_year = datetime.now().year
+
     def has_letters(number):
         return number.isalpha() or number.startswith("0")
+    
+    def month_check(month, d_input):
+        if month in [4, 6, 9, 11] and d_input == 31:
+            return True
+        if month == 2 and d_input > 29:
+            return True
+
+    def year_check(year, d_input, m_input):
+        if d_input == 29 and m_input == 2 and isleap(year):
+            return True
+    
+    def out_of_bounds(number, mode, d=0, m=0):
+        number = int(number)
+        if mode == "day" and number > 31 or number < 1:
+            print("Day cannot be lower than 1 or bigger than 31.")
+            return True
+        if mode == "month": 
+            if number > 12 or number < 1:
+                print(f"Month cannot be lower than 1 or bigger than 12.")
+                return True
+            if month_check(number, d):
+                print(f"Month number {number} does not have that many days!")
+                return True
+        if mode == "year":
+            if number > current_year:
+                print(f"Year cannot be in the future.")
+                return True
+            if year_check(number, d, m):
+                print(f"Year {number} is not a leap year!")
+                return True
+        
+            return False
+            
     if has_letters(integer):
         print("Invalid format - please try again. Do not use letters or start number with 0.")
+            
+    elif out_of_bounds(integer, mode, d, m):
         interface()
-    else:
-        return int(integer)
+
+#CMD WINDOW:
 
 def interface():
+
     f_name = input("Enter your first name:")
     str_validation(f_name)
+    m_name = input("Enter your middle name (optional):")
+    str_validation(m_name)
     l_name = input("Enter your last name:")
     str_validation(l_name)
+    
     d = input("Enter your day of birth:")
-    d = int_validation(d)
+    int_validation(d, "day")
+    stored_d = int(d)
+    
     m = input("Enter your month of birth:")
-    m = int_validation(m)
+    int_validation(m, "month", stored_d)
+    stored_m = int(m)
+
     y = input("Enter your year of birth:")
-    y = int_validation(y)
-    number_generator(f_name, l_name, d, m, y)
+    int_validation(y, "year", stored_d, stored_m)
+    stored_y = int(y)
+    
+    number_generator(f_name, l_name, m_name, stored_d, stored_m, stored_y)
+    
+    x = input("Want to go again? Type 'YES' if so:   ")
+    if x.upper() == "YES":
+        interface()
+    else:
+        quit()
 
 if __name__ == "__main__":
     interface()
     input("\nPress any button to exit...")
-
-
