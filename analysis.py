@@ -1,0 +1,10 @@
+analysis_dict = {"1": "Born to lead, you thrive on independence, ambition, and original thinking.\n"
+                    "You chart your own course and refuse to be held back once your mind is set. \n"
+                    "As a protector and provider, you take responsibility seriously and demand respect in return. \n"
+                    "You’re at your best in control—creative, bold, and unafraid to break new ground. \n"
+                    "Limelight suits you, but impatience and pride can be pitfalls. \n"
+                    "Keep your ego in check and temper your drive with humility.\n"
+                    "Autonomy fuels your success—entrepreneurship is ideal.\n"
+                    "Your energy and determination push you to achieve big goals, but balance is key. \n"
+                    "Stay active, eat well, and find healthy outlets like running or swimming.\n"
+                    "When you align your pioneering spirit with purpose, there’s no limit to what you can accomplish.\n"}
