@@ -226,17 +226,27 @@ def int_validation(integer, var, mode="", d=0, m=0):
 
 # CMD WINDOW:
 
-def interface(counter, mode=""):
+def interface(counter, mode="", wb_string=False):
 
     # mode = "default" → full interactive CLI
     # mode = "return"  → skip prompts, return results instead of printing, needed for going back to previous prompt
 
-    def analysis_print(choice):
-        while True:
+    def analysis_print(choice, restart=False):
+        if restart == False:
             print(f"{a.analysis_dict[choice]}")
-            x = input(h.cmd_print("choice").split("\n")[-1])
-            if x not in range(1, h.result_q_str.count("\n")):
+            analysis_print(choice, restart=True)
+        while restart == True:
+            x = input("Want another reading? Type the desired number and press ENTER if so, or type 'NO' to go back:   ")
+            if x.upper() == "NO":
                 return interface(counter, mode="return")
+            try:
+                int(x)
+            except ValueError:
+                print("Invalid answer.")
+                continue
+            if int(x) not in range(1, h.result_q_str.count("\n")):
+                return interface(counter, mode="return")
+            print(f"{a.analysis_dict[choice]}")
 
     if mode != "return":
 
@@ -255,8 +265,14 @@ def interface(counter, mode=""):
 
         numbers_repo.update(h.helper_repo)
         x = input(h.cmd_print("choice"))
+        try:
+            int(x)
+        except ValueError:
+            return interface(counter, mode="return")
         if int(x) not in range(1, h.result_q_str.count("\n")):
-            x = input("Want to go again? Type 'YES' and press ENTER if so:   ")
+            x = input("Want to start over? Type 'YES' and press ENTER if so, or anything else to quit:   ")
+            if x.upper() != "YES":
+                quit()
         else:
             analysis_print(x)
         if x.upper() == "YES":
@@ -269,13 +285,34 @@ def interface(counter, mode=""):
 
     if mode == "return":
 
-        print("\nAlright, here we go again!")
+        if wb_string:
+            print("\nAlright, here we go again!")
         number_generator(*args)
-        x = input("Want to go again? Type 'YES' and press ENTER if so:   ")
+        x = input("Want to go again? Type 'YES' and press ENTER if so, or type 'BACK' and press ENTER if you want another reading:   ")
         if x.upper() == "YES":
             counter += 1
             print(f"You owe me {50 * counter} RON now.")
+            args.clear()
             interface(counter)
+        if x.upper() == "BACK":
+            x = input(h.cmd_print("choice"))
+            try:
+                int(x)
+            except ValueError:
+                return interface(counter, mode="return")
+            if int(x) not in range(1, h.result_q_str.count("\n")):
+                x = input("Want to go again? Type 'YES' and press ENTER if so:   ")
+                if x == "YES":
+                    counter += 1
+                    print(f"You owe me {50 * counter} RON now.")
+                    args.clear()
+                    interface(counter)
+                else:
+                    input("\nPress any button to exit...")
+                    quit()
+            else:
+                analysis_print(x)
+
         else:
             input("\nPress any button to exit...")
             quit()
