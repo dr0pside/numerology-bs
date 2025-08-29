@@ -43,9 +43,46 @@ planes_matrix = {
     "V": ("Intuitive", "Grounded")
 }
 
+result_q_str =  (
+                "1 - Life Path\n"
+                "2 - Period Cycles\n"
+                "3 - Pinnacle Cycles\n"
+                "4 - Challenge Numbers\n"
+                "5 - Life Path - Birth Day bridge\n"
+                "6 - Sun Number\n"
+                "7 - Expression Number and Karmic Debt\n"
+                "8 - Minor Expression Number\n"
+                "9 - Heart's Desire/Soul Urge"
+                "10 - Minor Heart's Desire/Soul Urge"
+                "11 - Personality\n"
+                "12 - Minor Personality\n"
+                "13 - Heart's Desire - Personality bridge\n"
+                "14 - Life Path - Expression bridge\n"
+                "15 - Maturity Number\n"
+                "16 - Rational Thought Number\n"
+                "17 - Hidden Passion(s)\n"
+                "18 - Karmic Lesson(s)\n"
+                "19 - Balance Number\n"
+                "20 - Cornerstone Letter\n"
+                "21 - Subconscious Self Number\n"
+                "22 - Physical Plane of Expression\n"
+                "23 - Mental Plane of Expression\n"
+                "24 - Emotional Plane of Expression\n"
+                "25 - Intuitive Plane of Expression\n"
+                "26 - Physical Transit\n"
+                "27 - Spiritual Transit\n"
+                "28 - Mental Transit\n"
+                "29 - Essence Cycle\n"
+                "30 - Personal Year Number\n"
+                "31 - Personal Month Number\n"
+                "32 - Personal Day Number\n"
+                "33 - Duality\n"
+                "Want an explanation for any of the above? Type its number and press ENTER if so:   ")
+
 karma = []
 added_karma = []
 karma_count = []
+helper_repo = {}
 
 
 def sum_digits(n, mode=""):
@@ -96,18 +133,23 @@ def bridge(n1, n2, mode=""):
     if x < 0:
         x *= -1
     if mode == "sp":
+        helper_repo.update({"sp_bridge" : x})
         print(f"Your Heart's Desire - Personality bridge is {x}")
     if mode == "le":
+        helper_repo.update({"le_bridge" : x})
         print(f"Your Life's Path - Expression bridge is {x}")
     else:
         return x
 
 
 def sum_digits_and_print(n, mode=""):
+    x = sum_digits(n, mode='ignore')
     if mode == "maturity":
-        print(f"Your Maturity number is {sum_digits(n, mode='ignore')}")
+        helper_repo.update({"maturity" : x})
+        print(f"Your Maturity number is {x}")
     if mode == "rational":
-        print(f"Your Rational Thought number is {sum_digits(n, mode='ignore')}")
+        helper_repo.update({"rational" : x})
+        print(f"Your Rational Thought number is {x}")
 
 
 def karma_print():
@@ -118,6 +160,7 @@ def karma_print():
         count += 1
         if count != len(karma):
             karma_str += ", "
+    helper_repo.update({"karmic_debt" : karma})
     return karma_str
 
 
@@ -148,6 +191,7 @@ def passion_karma(f_name: str, l_name: str, d, m_name=""):
                 karma_str += ", "
         karma_count.clear()
         karma_count.append(count)
+        helper_repo.update({"karmic_lessons" : karmic_list})
         return karma_str
 
     if len(max_val_list) == 1:
@@ -156,16 +200,21 @@ def passion_karma(f_name: str, l_name: str, d, m_name=""):
         string_list = [str(x) for x in max_val_list]
         print_str = ", ".join(string_list)
         print(f"Your Hidden Passion numbers are {print_str}, with {count_dict[max_val_list[0]]} occurrences each.")
+    helper_repo.update({"passion" : max_val_list})
     print(f"Your Karmic Lesson numbers are {karmic_print()}.")
     return
 
 
 def cornerstone(f_name):
-    print(f"Your Cornerstone is {f_name[0].upper()}")
+    x = f_name[0].upper()
+    helper_repo.update({"cornerstone" : x})
+    print(f"Your Cornerstone is {x}")
 
 
 def subconscious():
-    print(f"Your Subconscious Self number is {9 - karma_count[0]}\n")
+    x = 9 - karma_count[0]
+    helper_repo.update({"subconscious": x})
+    print(f"Your Subconscious Self number is {x}\n")
 
 
 def planes_of_expression(f_name, l_name, m_name=""):
@@ -184,6 +233,7 @@ def planes_of_expression(f_name, l_name, m_name=""):
     for k, v in planes_dict.items():
         planes_dict[k] = sum_digits(v)
     for x in ['Physical', 'Mental', 'Emotional', 'Intuitive']:
+        helper_repo.update({f"{x.lower()}_plane" : planes_dict[x]})
         print(f"Your {x} Plane of Expression is {planes_dict[x]}.")
 
 def get_age(start_date, end_date):
@@ -215,6 +265,8 @@ def transits(age, f_name, l_name, m_name=""):
     essence_transit = sum_digits(full[physical_letter] + full[mental_letter] + full[spiritual_letter])
     print(f"Your Essence Cycle for age {age} is {essence_transit}.\n")
 
+    helper_repo.update({"p_transit" : physical_letter, "s_transit" : spiritual_letter, "m_transit" : mental_letter, "essence_cycle" : essence_transit})
+
     return physical_letter, spiritual_letter, mental_letter, essence_transit
 
 def personals(d, m, y, essence_transit):
@@ -225,6 +277,7 @@ def personals(d, m, y, essence_transit):
     d_sum = sum_digits(n_sum + int(datetime.now().day), mode="ignore")
     print(f"Your Personal Day number for today is {d_sum}.\n")
     print(f"Your Duality in {datetime.now().year} is {essence_transit} and {y_sum}.\n")
+    helper_repo.update({"personal_y" : y_sum, "personal_m" : n_sum, "personal_d" : d_sum, "duality": [essence_transit, y_sum]})
 
 
 def cmd_print(mode):
@@ -243,3 +296,5 @@ def cmd_print(mode):
         return "Enter your month of birth:"
     if mode == "y":
         return "Enter your year of birth:"
+    if mode == "choice":
+        return result_q_str
