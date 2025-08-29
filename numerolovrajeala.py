@@ -1,13 +1,13 @@
 import helpers as h
 from datetime import datetime, date
 from calendar import isleap
+import analysis as a
 
 # VAR INIT:
 karma = h.karma
 added_karma = h.added_karma
 numbers_repo = {}
-bday = []
-
+args = []
 
 # MAIN FUNCS:
 
@@ -38,8 +38,11 @@ def birthday(d, m, y, mode=""):
     life_karma = karma.copy()
 
     period_print = ""
+    cy_pos_count = 1
     for pos, n in [("First", h.sum_digits(m)), ("Second", h.sum_digits(d)), ("Third", h.sum_digits(y))]:
         period_print += f"  Your {pos} Period Cycle is {n}.\n"
+        numbers_repo.update({f"cycle{cy_pos_count}" : n})
+        cy_pos_count += 1
 
     pinnacle1 = h.sum_digits(h.sum_digits(m) + h.sum_digits(d))
     pinnacle2 = h.sum_digits(h.sum_digits(d) + h.sum_digits(y))
@@ -47,8 +50,11 @@ def birthday(d, m, y, mode=""):
     pinnacle4 = h.sum_digits(h.sum_digits(m) + h.sum_digits(y))
 
     pinnacle_print = ""
+    p_pos_count = 1
     for pos, n in [("First", pinnacle1), ("Second", pinnacle2), ("Third", pinnacle3), ("Fourth", pinnacle4)]:
         pinnacle_print += f"  Your {pos} Pinnacle Cycle is {n}.\n"
+        numbers_repo.update({f"pinnacle{p_pos_count}" : n})
+        p_pos_count += 1
 
     challenge1 = h.challenge_math(h.sum_digits(d, mode="ignore"), h.sum_digits(m, mode="ignore"))
     challenge2 = h.challenge_math(h.sum_digits(y, mode="ignore"), h.sum_digits(d, mode="ignore"))
@@ -56,10 +62,15 @@ def birthday(d, m, y, mode=""):
     challenge4 = h.challenge_math(h.sum_digits(y, mode="ignore"), h.sum_digits(m, mode="ignore"))
 
     challenge_print = ""
+    ch_pos_count = 1
     for pos, n in [("First", challenge1), ("Second", challenge2), ("Third", challenge3), ("Fourth", challenge4)]:
         challenge_print += f"  Your {pos} Challenge number is {n}.\n"
+        numbers_repo.update({f"challenge{ch_pos_count}": n})
+        ch_pos_count += 1
 
     sun_number = h.sum_digits(d + m, mode="ignore")
+    numbers_repo.update({"sun" : sun_number})
+
 
     if len(life_karma) == 0:
         print(
@@ -69,6 +80,7 @@ def birthday(d, m, y, mode=""):
             f"\nYour Life Path is {life_path}, with the karmic debt(s) {h.karma_print()}.\n{period_print}\n{pinnacle_print}\n{challenge_print}")
 
     print(f"Your Life Path - Birth Day bridge is {h.bridge(life_path, d)}")
+    numbers_repo.update({"ld_bridge" : h.bridge(life_path, d)})
     print(f"Your Sun number is {sun_number}.")
 
 
@@ -132,8 +144,7 @@ def number_generator(f_name, l_name, m_name, n_name, d, m, y, ):
     h.karma.clear()
     h.added_karma.clear()
     birthday(d, m, y)
-    bday.append(birthday(d, m, y, mode = "date"))
-    h.get_age(bday[0], datetime.now())
+    h.get_age(birthday(d, m, y, mode = "date"), datetime.now())
     for x in ["expression", "soul", "personality"]:
         name_analysis(f_name, l_name, m_name, mode=x)
         name_analysis(f_name, l_name, m_name, n_name, mode=x, minor=True)
@@ -215,31 +226,60 @@ def int_validation(integer, var, mode="", d=0, m=0):
 
 # CMD WINDOW:
 
-def interface(counter):
+def interface(counter, mode=""):
 
-    args = []
+    # mode = "default" → full interactive CLI
+    # mode = "return"  → skip prompts, return results instead of printing, needed for going back to previous prompt
 
-    for x in ["f_name", "m_name", "l_name", "n_name"]:
-        var = x
-        x = input(h.cmd_print(f"{x}"))
-        args.append(str_validation(x, var))
-    args[1], args[2] = args[2], args[1]  #switching m_name and l_name positions in list to match arg order
-    for n in ["d", "m", "y"]:
-        var = n
-        n = input(h.cmd_print(f"{n}"))
-        n = int_validation(n, var, mode=var)
-        args.append(int(n))
+    def analysis_print(choice):
+        while True:
+            print(f"{a.analysis_dict[choice]}")
+            x = input(h.cmd_print("choice").split("\n")[-1])
+            if x not in range(1, h.result_q_str.count("\n")):
+                return interface(counter, mode="return")
 
-    number_generator(*args)
+    if mode != "return":
 
-    x = input("Want to go again? Type 'YES' if so:   ")
-    if x.upper() == "YES":
-        counter += 1
-        print(f"You owe me {50 * counter} RON now.")
-        interface(counter)
-    else:
-        input("\nPress any button to exit...")
-        quit()
+        for x in ["f_name", "m_name", "l_name", "n_name"]:
+            var = x
+            x = input(h.cmd_print(f"{x}"))
+            args.append(str_validation(x, var))
+        args[1], args[2] = args[2], args[1]  #because m_name is an optional arg in funcs, we need it after l_name in the arg list
+        for n in ["d", "m", "y"]:
+            var = n
+            n = input(h.cmd_print(f"{n}"))
+            n = int_validation(n, var, mode=var)
+            args.append(int(n))
+
+        number_generator(*args)
+
+        numbers_repo.update(h.helper_repo)
+        x = input(h.cmd_print("choice"))
+        if int(x) not in range(1, h.result_q_str.count("\n")):
+            x = input("Want to go again? Type 'YES' and press ENTER if so:   ")
+        else:
+            analysis_print(x)
+        if x.upper() == "YES":
+            counter += 1
+            print(f"You owe me {50 * counter} RON now.")
+            interface(counter)
+        else:
+            input("\nPress any button to exit...")
+            quit()
+
+    if mode == "return":
+
+        print("\nAlright, here we go again!")
+        number_generator(*args)
+        x = input("Want to go again? Type 'YES' and press ENTER if so:   ")
+        if x.upper() == "YES":
+            counter += 1
+            print(f"You owe me {50 * counter} RON now.")
+            interface(counter)
+        else:
+            input("\nPress any button to exit...")
+            quit()
+
 
 
 if __name__ == "__main__":
