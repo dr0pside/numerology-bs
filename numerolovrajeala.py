@@ -1,7 +1,7 @@
 import helpers as h
+import analysis as a
 from datetime import datetime, date
 from calendar import isleap
-import analysis as a
 
 # VAR INIT:
 karma = h.karma
@@ -224,12 +224,21 @@ def int_validation(integer, var, mode="", d=0, m=0):
         integer = input(h.cmd_print(var))
 
 
-# CMD WINDOW:
+# CMD WINDOW + MENU NAVIGATION:
 
 def interface(counter, mode="", wb_string=False):
 
     # mode = "default" → full interactive CLI
     # mode = "return"  → skip prompts, return results instead of printing, needed for going back to previous prompt
+
+    def cmd_restart(counter, input):
+        if input.upper() != "YES":
+            return quit()
+        else:
+            counter += 1
+            print(f"You owe me {50 * counter} RON now.")
+            args.clear()
+            interface(counter)
 
     def analysis_print(choice, restart=False):
         if restart == False:
@@ -248,8 +257,7 @@ def interface(counter, mode="", wb_string=False):
                 return interface(counter, mode="return")
             print(f"{a.analysis_dict[choice]}")
 
-    if mode != "return":
-
+    def collect_inputs():
         for x in ["f_name", "m_name", "l_name", "n_name"]:
             var = x
             x = input(h.cmd_print(f"{x}"))
@@ -261,34 +269,33 @@ def interface(counter, mode="", wb_string=False):
             n = int_validation(n, var, mode=var)
             args.append(int(n))
 
-        number_generator(*args)
+    #DATA COLLECTION
+    if mode != "return":
 
+        args.clear()
+        collect_inputs() #generates args list used below
+        number_generator(*args)
         numbers_repo.update(h.helper_repo)
+
         x = input(h.cmd_print("choice"))
+
         try:
             int(x)
         except ValueError:
-            return interface(counter, mode="return")
+            x = input("Want to start over? Type 'YES' and press ENTER if so, or anything else to quit:   ")
+            cmd_restart(counter, x)
         if int(x) not in range(1, h.result_q_str.count("\n")):
             x = input("Want to start over? Type 'YES' and press ENTER if so, or anything else to quit:   ")
-            if x.upper() != "YES":
-                quit()
+            cmd_restart(counter, x)
         else:
             analysis_print(x)
-        if x.upper() == "YES":
-            counter += 1
-            print(f"You owe me {50 * counter} RON now.")
-            interface(counter)
-        else:
-            input("\nPress any button to exit...")
-            quit()
 
     if mode == "return":
 
         if wb_string:
             print("\nAlright, here we go again!")
         number_generator(*args)
-        x = input("Want to go again? Type 'YES' and press ENTER if so, or type 'BACK' and press ENTER if you want another reading:   ")
+        x = input("Want to start over? Type 'YES' and press ENTER if so, or type 'BACK' and press ENTER if you want another reading:   ")
         if x.upper() == "YES":
             counter += 1
             print(f"You owe me {50 * counter} RON now.")
