@@ -1,16 +1,23 @@
 import helpers as h
-from datetime import datetime
+from datetime import datetime, date
 from calendar import isleap
 
 # VAR INIT:
 karma = h.karma
 added_karma = h.added_karma
 numbers_repo = {}
+bday = []
 
 
 # MAIN FUNCS:
 
-def birthday(d, m, y):
+def birthday(d, m, y, mode=""):
+
+    if mode == "date":
+        reversed_bday = [y, m, d]
+        bday_date = date(*reversed_bday)
+        return bday_date
+
     res = ()
 
     for x in [d, m, y]:
@@ -21,17 +28,18 @@ def birthday(d, m, y):
             res += (h.sum_digits(x),)
 
     life_path = sum(res)
-    numbers_repo.update({"life_path": life_path})
+
 
     if life_path not in h.MASTER_NUMBERS and life_path >= 10:
         life_path = h.sum_digits(life_path)
 
+    numbers_repo.update({"life_path": life_path})
+
     life_karma = karma.copy()
 
-
     period_print = ""
-    for x, y in [("First", h.sum_digits(m)), ("Second", h.sum_digits(d)), ("Third", h.sum_digits(y))]:
-        period_print += f"  Your {x} Period Cycle is {y}."
+    for pos, n in [("First", h.sum_digits(m)), ("Second", h.sum_digits(d)), ("Third", h.sum_digits(y))]:
+        period_print += f"  Your {pos} Period Cycle is {n}.\n"
 
     pinnacle1 = h.sum_digits(h.sum_digits(m) + h.sum_digits(d))
     pinnacle2 = h.sum_digits(h.sum_digits(d) + h.sum_digits(y))
@@ -39,17 +47,17 @@ def birthday(d, m, y):
     pinnacle4 = h.sum_digits(h.sum_digits(m) + h.sum_digits(y))
 
     pinnacle_print = ""
-    for x, y in [("First", pinnacle1), ("Second", pinnacle2), ("Third", pinnacle3), ("Fourth", pinnacle4)]:
-        pinnacle_print += f"  Your {x} Pinnacle Cycle is {y}."
+    for pos, n in [("First", pinnacle1), ("Second", pinnacle2), ("Third", pinnacle3), ("Fourth", pinnacle4)]:
+        pinnacle_print += f"  Your {pos} Pinnacle Cycle is {n}.\n"
 
-    challenge1 = h.challenge_math(d, m)
-    challenge2 = h.challenge_math(y, d)
+    challenge1 = h.challenge_math(h.sum_digits(d, mode="ignore"), h.sum_digits(m, mode="ignore"))
+    challenge2 = h.challenge_math(h.sum_digits(y, mode="ignore"), h.sum_digits(d, mode="ignore"))
     challenge3 = h.challenge_math(challenge1, challenge2)
-    challenge4 = h.challenge_math(y, m)
+    challenge4 = h.challenge_math(h.sum_digits(y, mode="ignore"), h.sum_digits(m, mode="ignore"))
 
     challenge_print = ""
-    for x, y in [("First", challenge1), ("Second", challenge2), ("Third", challenge3), ("Fourth", challenge4)]:
-        challenge_print += f"  Your {x} Challenge number is {y}."
+    for pos, n in [("First", challenge1), ("Second", challenge2), ("Third", challenge3), ("Fourth", challenge4)]:
+        challenge_print += f"  Your {pos} Challenge number is {n}.\n"
 
     sun_number = h.sum_digits(d + m, mode="ignore")
 
@@ -60,7 +68,7 @@ def birthday(d, m, y):
         print(
             f"\nYour Life Path is {life_path}, with the karmic debt(s) {h.karma_print()}.\n{period_print}\n{pinnacle_print}\n{challenge_print}")
 
-    print(f"Your Life Path - Birthday bridge is {h.bridge(life_path, d)}")
+    print(f"Your Life Path - Birth Day bridge is {h.bridge(life_path, d)}")
     print(f"Your Sun number is {sun_number}.")
 
 
@@ -109,7 +117,7 @@ def name_analysis(f_name: str, l_name: str, m_name="", n_name="", mode="", minor
     else:
         numbers_repo.update({"minor" + mode: int(expr_number)})
 
-    if mode == "expression":
+    if mode == "expression" and minor == False:
         if len(karma) == 0:
             print(f"Your {func_str} number is {expr_number}, with no karmic debt numbers.")
         else:
@@ -124,6 +132,8 @@ def number_generator(f_name, l_name, m_name, n_name, d, m, y, ):
     h.karma.clear()
     h.added_karma.clear()
     birthday(d, m, y)
+    bday.append(birthday(d, m, y, mode = "date"))
+    h.get_age(bday[0], datetime.now())
     for x in ["expression", "soul", "personality"]:
         name_analysis(f_name, l_name, m_name, mode=x)
         name_analysis(f_name, l_name, m_name, n_name, mode=x, minor=True)
@@ -136,7 +146,9 @@ def number_generator(f_name, l_name, m_name, n_name, d, m, y, ):
     h.cornerstone(f_name)
     h.subconscious()
     h.planes_of_expression(f_name, l_name, m_name)
-
+    age = h.get_age(birthday(d, m, y, mode="date"), datetime.now())
+    physical, spiritual, mental, essence = h.transits(age, f_name, l_name, m_name)
+    h.personals(d, m, y, essence)
 
 # INPUT VALIDATION:
 
@@ -203,7 +215,7 @@ def int_validation(integer, var, mode="", d=0, m=0):
 
 # CMD WINDOW:
 
-def interface():
+def interface(counter):
 
     args = []
 
@@ -211,6 +223,7 @@ def interface():
         var = x
         x = input(h.cmd_print(f"{x}"))
         args.append(str_validation(x, var))
+    args[1], args[2] = args[2], args[1]  #switching m_name and l_name positions in list to match arg order
     for n in ["d", "m", "y"]:
         var = n
         n = input(h.cmd_print(f"{n}"))
@@ -221,7 +234,9 @@ def interface():
 
     x = input("Want to go again? Type 'YES' if so:   ")
     if x.upper() == "YES":
-        interface()
+        counter += 1
+        print(f"You owe me {50 * counter} RON now.")
+        interface(counter)
     else:
         input("\nPress any button to exit...")
         quit()
@@ -229,6 +244,6 @@ def interface():
 
 if __name__ == "__main__":
     print("Welcome to the Number Wizard! 50 RON per use.\n")
-    interface()
+    interface(counter=1)
 
 
