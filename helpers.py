@@ -1,3 +1,6 @@
+from dateutil.relativedelta import relativedelta
+from datetime import datetime
+
 MASTER_NUMBERS = [11, 22, 33]
 KARMIC_NUMBERS = [13, 14, 16, 19]
 
@@ -82,10 +85,10 @@ def pure_sum_letters(f_name: str, l_name: str, m_name=""):
 
 
 def challenge_math(n1, n2):
-    res = sum_digits(n1, mode="ignore") - sum_digits(n2, mode="ignore")
+    res = n1 - n2
     if res < 0:
         res *= -1
-    return res
+    return sum_digits(res, mode="ignore")
 
 
 def bridge(n1, n2, mode=""):
@@ -96,6 +99,8 @@ def bridge(n1, n2, mode=""):
         print(f"Your Heart's Desire - Personality bridge is {x}")
     if mode == "le":
         print(f"Your Life's Path - Expression bridge is {x}")
+    else:
+        return x
 
 
 def sum_digits_and_print(n, mode=""):
@@ -132,7 +137,6 @@ def passion_karma(f_name: str, l_name: str, d, m_name=""):
         count_dict[n] += 1
     max_val_list = [key for (key, value) in count_dict.items() if value == max(count_dict.values())]
     karmic_list = [key for (key, value) in count_dict.items() if value == 0]
-    passion_number = max(max_val_list)
 
     def karmic_print():
         karma_str = ""
@@ -146,7 +150,12 @@ def passion_karma(f_name: str, l_name: str, d, m_name=""):
         karma_count.append(count)
         return karma_str
 
-    print(f"Your Hidden Passion number is {passion_number}, with {count_dict[passion_number]} occurrences.")
+    if len(max_val_list) == 1:
+        print(f"Your Hidden Passion number is {max_val_list[0]}, with {count_dict[max_val_list][0]} occurrences.")
+    else:
+        string_list = [str(x) for x in max_val_list]
+        print_str = ", ".join(string_list)
+        print(f"Your Hidden Passion numbers are {print_str}, with {count_dict[max_val_list[0]]} occurrences each.")
     print(f"Your Karmic Lesson numbers are {karmic_print()}.")
     return
 
@@ -156,7 +165,7 @@ def cornerstone(f_name):
 
 
 def subconscious():
-    print(f"Your Subconscious Self number is {9 - karma_count[0]}")
+    print(f"Your Subconscious Self number is {9 - karma_count[0]}\n")
 
 
 def planes_of_expression(f_name, l_name, m_name=""):
@@ -175,14 +184,55 @@ def planes_of_expression(f_name, l_name, m_name=""):
     for k, v in planes_dict.items():
         planes_dict[k] = sum_digits(v)
     for x in ['Physical', 'Mental', 'Emotional', 'Intuitive']:
-        print(f"Your {x} Plane of Expression is {planes_dict[x]}.\n")
+        print(f"Your {x} Plane of Expression is {planes_dict[x]}.")
+
+def get_age(start_date, end_date):
+    difference_in_years = relativedelta(end_date, start_date).years
+    return difference_in_years
+
+def transits(age, f_name, l_name, m_name=""):
+
+    f_name = f_name.upper()
+    l_name = l_name.upper()
+    m_name = m_name.upper() if m_name else ""
+
+    def get_transit(name, target_age):
+        total = 0
+        while True:  # loop until we hit the target age
+            for letter in name:
+                total += full[letter]
+                if total >= target_age:
+                    return letter
+
+    physical_letter = get_transit(f_name, age)
+    spiritual_letter = get_transit(l_name, age)
+    mental_letter = get_transit(m_name, age) if m_name else spiritual_letter
+
+    print(f"\nYour Physical Transit for age {age} is {physical_letter}.")
+    print(f"Your Spiritual Transit for age {age} is {spiritual_letter}.")
+    print(f"Your Mental Transit for age {age} is {mental_letter}.\n")
+
+    essence_transit = sum_digits(full[physical_letter] + full[mental_letter] + full[spiritual_letter])
+    print(f"Your Essence Cycle for age {age} is {essence_transit}.\n")
+
+    return physical_letter, spiritual_letter, mental_letter, essence_transit
+
+def personals(d, m, y, essence_transit):
+    y_sum = sum_digits(int(d) + int(m) + sum_digits(int(datetime.now().year), mode="ignore"), mode="ignore")
+    print(f"Your Personal Year number for {datetime.now().year} is {y_sum}.")
+    n_sum = sum_digits(y_sum + int(datetime.now().month), mode="ignore")
+    print(f"Your Personal Month number for {datetime.now().strftime('%B')} {datetime.now().year} is {n_sum}.")
+    d_sum = sum_digits(n_sum + int(datetime.now().day), mode="ignore")
+    print(f"Your Personal Day number for today is {d_sum}.\n")
+    print(f"Your Duality in {datetime.now().year} is {essence_transit} and {y_sum}.\n")
+
 
 def cmd_print(mode):
 
     if mode == "f_name":
         return "Enter your first name:"
     if mode == "m_name":
-        return "Enter your middle name:"
+        return "Enter your middle name(s):"
     if mode == "l_name":
         return "Enter your last name:"
     if mode == "n_name":
